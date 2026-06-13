@@ -29,7 +29,7 @@ The implementation combines:
 Given a dataset of `N` points
 
 \[
-X = \{x_1, x_2, \ldots, x_N\}, \qquad x_i \in \mathbb{R}^d,
+X = \{x_1, x_2, \ldots, x_N\}, \qquad x_i \in \mathbb{R}^d
 \]
 
 and a requested number of clusters `k`, the algorithm performs the following steps.
@@ -41,8 +41,8 @@ Construct the similarity matrix \(A \in \mathbb{R}^{N \times N}\):
 \[
 a_{ij} =
 \begin{cases}
-\exp\left(-\frac{\lVert x_i-x_j\rVert_2^2}{2}\right), & i \ne j, \\
-0, & i=j.
+\exp\left(-\frac{\lVert x_i-x_j\rVert_2^2}{2}\right), & i \ne j \\
+0, & i=j
 \end{cases}
 \]
 
@@ -51,7 +51,7 @@ a_{ij} =
 For every point, calculate
 
 \[
-d_i = \sum_{j=1}^{N} a_{ij}.
+d_i = \sum_{j=1}^{N} a_{ij}
 \]
 
 The degree matrix \(D\) is a diagonal matrix whose diagonal entries are
@@ -62,7 +62,7 @@ The degree matrix \(D\) is a diagonal matrix whose diagonal entries are
 Calculate
 
 \[
-W = D^{-1/2} A D^{-1/2}.
+W = D^{-1/2} A D^{-1/2}
 \]
 
 ### 4. Symmetric non-negative matrix factorization
@@ -70,7 +70,7 @@ W = D^{-1/2} A D^{-1/2}.
 Find a non-negative matrix \(H \in \mathbb{R}^{N \times k}\) that minimizes
 
 \[
-\min_{H \ge 0} \lVert W-HH^T\rVert_F^2.
+\min_{H \ge 0} \lVert W-HH^T\rVert_F^2
 \]
 
 #### Initialization
@@ -78,7 +78,7 @@ Find a non-negative matrix \(H \in \mathbb{R}^{N \times k}\) that minimizes
 Let `m` be the average of all entries in `W`. Initialize every entry of `H` uniformly at random in
 
 \[
-\left[0,\;2\sqrt{\frac{m}{k}}\right].
+\left[0,\;2\sqrt{\frac{m}{k}}\right]
 \]
 
 The Python program uses:
@@ -98,9 +98,8 @@ Starting from \(H^{(0)}\), repeatedly update
 H_{ij}^{(t+1)} = H_{ij}^{(t)}
 \left(
 1-\beta+
-\beta\frac{(WH^{(t)})_{ij}}
-{(H^{(t)}(H^{(t)})^T H^{(t)})_{ij}}
-\right),
+\beta\frac{(WH^{(t)})_{ij}}{(H^{(t)}(H^{(t)})^T H^{(t)})_{ij}}
+\right)
 \]
 
 where
@@ -351,7 +350,7 @@ For SymNMF, a data point's cluster is determined by the index of the maximum ent
 The silhouette coefficient for a point is
 
 \[
-\frac{b-a}{\max(a,b)},
+\frac{b-a}{\max(a,b)}
 \]
 
 where:
@@ -370,6 +369,14 @@ A higher average silhouette score generally indicates better-separated and more 
 - `symnmf.h` declares every C function used by `symnmfmodule.c` and implemented in the C source files.
 - `setup.py` builds the Python extension imported by `symnmf.py`.
 - `Makefile` builds the standalone C command-line program and all of its dependencies.
+
+## Analysis
+
+`analysis.py` compares SymNMF with K-means on the same dataset.
+
+- It runs SymNMF, converts the `H` matrix into cluster labels with `argmax` per row, and computes the silhouette score.
+- It runs K-means, assigns each point to its nearest centroid, and computes the silhouette score.
+- The script prints both scores so you can compare clustering quality directly.
 
 ## Error handling and assumptions
 
