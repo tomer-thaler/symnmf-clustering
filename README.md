@@ -340,6 +340,23 @@ A higher average silhouette score generally indicates better-separated and more 
 - K-means labels are taken from the nearest centroid for each point.
 - The script prints both silhouette scores so you can compare the clustering quality directly.
 
+### Silhouette score
+
+The silhouette score is a clustering quality measure that checks how well-separated and how compact the clusters are.
+
+For each point, the silhouette coefficient is computed as `s = (b - a) / max(a, b)`, where:
+
+- `a` is the average distance from the point to the other points in its own cluster.
+- `b` is the smallest average distance from the point to the points in any other cluster.
+
+The score ranges from `-1` to `1`:
+
+- Values close to `1` mean the point is well matched to its own cluster and far from others.
+- Values around `0` mean the point lies near a cluster boundary.
+- Negative values mean the point may be assigned to the wrong cluster.
+
+The final silhouette score is the average of all point-wise silhouette coefficients, so higher values indicate better-defined clusters.
+
 ## Error handling and assumptions
 
 The original project requirements define the following behavior:
