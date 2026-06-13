@@ -1,6 +1,6 @@
 # SymNMF Clustering
 
-A clustering project based on **Symmetric Non-negative Matrix Factorization (SymNMF)**. The project builds a graph-based representation of a dataset, factorizes its normalized similarity matrix, derives cluster assignments from the factorization, and compares the resulting clustering with K-means using the silhouette score.
+This project implements **Symmetric Non-negative Matrix Factorization (SymNMF)** for graph clustering and compares it with K-means using the silhouette score.
 
 The implementation combines:
 
@@ -26,60 +26,34 @@ The implementation combines:
 
 ## Algorithm overview
 
-Given a dataset of `N` points
-
-\[
-X = \{x_1, x_2, \ldots, x_N\}, \qquad x_i \in \mathbb{R}^d
-\]
-
-and a requested number of clusters `k`, the algorithm performs the following steps.
+Given a dataset of `N` points, `X = {x1, x2, ..., xN}` where each `xi` is in `R^d`, and a requested number of clusters `k`, the algorithm does the following.
 
 ### 1. Similarity matrix
 
-Construct the similarity matrix \(A \in \mathbb{R}^{N \times N}\):
+Form the similarity matrix `A` of size `N x N`:
 
-\[
-a_{ij} =
-\begin{cases}
-\exp\left(-\frac{\lVert x_i-x_j\rVert_2^2}{2}\right), & i \ne j \\
-0, & i=j
-\end{cases}
-\]
+```text
+aij = exp(-||xi - xj||^2 / 2)   if i != j
+aij = 0                         if i = j
+```
 
 ### 2. Diagonal degree matrix
 
-For every point, calculate
+For every point, calculate `di = sum_j aij`.
 
-\[
-d_i = \sum_{j=1}^{N} a_{ij}
-\]
-
-The degree matrix \(D\) is a diagonal matrix whose diagonal entries are
-\(d_1,\ldots,d_N\).
+The degree matrix `D` is diagonal, with `d1, ..., dN` on the diagonal.
 
 ### 3. Normalized similarity matrix
 
-Calculate
-
-\[
-W = D^{-1/2} A D^{-1/2}
-\]
+Calculate the normalized similarity matrix `W = D^(-1/2) A D^(-1/2)`.
 
 ### 4. Symmetric non-negative matrix factorization
 
-Find a non-negative matrix \(H \in \mathbb{R}^{N \times k}\) that minimizes
-
-\[
-\min_{H \ge 0} \lVert W-HH^T\rVert_F^2
-\]
+Find a non-negative matrix `H` of size `N x k` that minimizes `||W - HHT||_F^2`.
 
 #### Initialization
 
-Let `m` be the average of all entries in `W`. Initialize every entry of `H` uniformly at random in
-
-\[
-\left[0,\;2\sqrt{\frac{m}{k}}\right]
-\]
+Let `m` be the average of all entries in `W`. Initialize every entry of `H` uniformly at random in `[0, 2 * sqrt(m / k)]`.
 
 The Python program uses:
 
@@ -92,30 +66,22 @@ This makes the initialization reproducible.
 
 #### Update rule
 
-Starting from \(H^{(0)}\), repeatedly update
+Starting from `H^(0)`, repeatedly update
 
-\[
-H_{ij}^{(t+1)} = H_{ij}^{(t)}
-\left(
-1-\beta+
-\beta\frac{(WH^{(t)})_{ij}}{(H^{(t)}(H^{(t)})^T H^{(t)})_{ij}}
-\right)
-\]
+```text
+Hij^(t+1) = Hij^(t) * (1 - beta + beta * (WH^(t))ij / (H^(t)(H^(t))^T H^(t))ij)
+```
 
-where
-
-\[
-\beta=0.5.
-\]
+where `beta = 0.5`.
 
 The update stops when either:
 
 - `max_iter = 300` iterations have been reached, or
-- \(\lVert H^{(t+1)}-H^{(t)}\rVert_F^2 < 10^{-4}\).
+- `||H^(t+1) - H^(t)||_F^2 < 10^-4`.
 
 ### 5. Cluster assignment
 
-Each row of `H` contains the association scores of one data point with all clusters. The assigned cluster is the index of the largest value in that row:
+Each row of `H` contains the association scores of one data point with all clusters. The assigned cluster is the index of the largest value in that row.
 
 ```python
 cluster = argmax(H[i])
@@ -347,11 +313,7 @@ kmeans: 0.1147
 
 For SymNMF, a data point's cluster is determined by the index of the maximum entry in its row of `H`.
 
-The silhouette coefficient for a point is
-
-\[
-\frac{b-a}{\max(a,b)}
-\]
+The silhouette coefficient for a point is `(b - a) / max(a, b)`.
 
 where:
 
@@ -372,11 +334,11 @@ A higher average silhouette score generally indicates better-separated and more 
 
 ## Analysis
 
-`analysis.py` compares SymNMF with K-means on the same dataset.
+`analysis.py` compares SymNMF with K-means on the same dataset, as required by the assignment.
 
-- It runs SymNMF, converts the `H` matrix into cluster labels with `argmax` per row, and computes the silhouette score.
-- It runs K-means, assigns each point to its nearest centroid, and computes the silhouette score.
-- The script prints both scores so you can compare clustering quality directly.
+- SymNMF labels are taken from the largest value in each row of `H`.
+- K-means labels are taken from the nearest centroid for each point.
+- The script prints both silhouette scores so you can compare the clustering quality directly.
 
 ## Error handling and assumptions
 
