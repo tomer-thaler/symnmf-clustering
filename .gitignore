@@ -1,0 +1,49 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Compiled Python/C extensions
+*.pyd
+*.so
+*.dll
+*.dylib
+
+# C compilation artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+
+# The compiled Linux executable
+/symnmf
+
+# Testing and coverage cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+#instructions
+instructions and algo-reserch/
+tests/
